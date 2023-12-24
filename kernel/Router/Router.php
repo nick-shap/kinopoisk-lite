@@ -2,6 +2,8 @@
 
 namespace App\Kernel\Router;
 
+use App\Kernel\View\View;
+
 class Router
 {
     private array $routes = [
@@ -9,7 +11,9 @@ class Router
         'POST' => [],
     ];
 
-    public function __construct()
+    public function __construct(
+        private View $view
+    )
     {
         $this->initRoutes();
     }
@@ -26,6 +30,7 @@ class Router
             [$controller, $action] = $route->getAction();
             $controller = new $controller();
 
+            call_user_func([$controller, 'setView'], $this->view);
             call_user_func([$controller, $action]);
         } else {
             $route->getAction()();
@@ -40,8 +45,6 @@ class Router
         foreach ($routes as $route) {
             $this->routes[$route->getMethod()][$route->getUri()] = $route;
         }
-
-        //print_r($this->routes);
     }
 
 
